@@ -13,12 +13,12 @@ export async function POST(req: Request) {
         { status: 400 });
     }
 
-    const response = await ai.models.generateContent({
+    const response = await ai.interactions.create({
       model: 'gemini-2.5-flash',
-      contents: prompt,
+      input: prompt,
     });
 
-    return NextResponse.json({ text: response.text });
+    return NextResponse.json({ text: response });
     
  } catch(error) {
    console.error('Gemini API Error:', error);
