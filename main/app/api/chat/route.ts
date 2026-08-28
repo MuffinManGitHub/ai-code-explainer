@@ -1,12 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
 import { NextResponse } from 'next/server';
 
-const ai = new GoogleGenAI();
+const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY || ''});
 
 export async function POST(req: Request) {
  try {
-
-   const prompt = await req.json();
+  console.log("API KEY EXISTS:", !!process.env.GEMINI_API_KEY);
+   const { prompt } = await req.json();
 
    if (!prompt) {
      return NextResponse.json({ error: 'Prompt is required' }, 
@@ -14,11 +14,11 @@ export async function POST(req: Request) {
     }
 
     const response = await ai.interactions.create({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       input: prompt,
     });
-
-    return NextResponse.json({ text: response });
+    console.log(response.output_text);
+    return NextResponse.json({ text: response.output_text });
     
  } catch(error) {
    console.error('Gemini API Error:', error);
