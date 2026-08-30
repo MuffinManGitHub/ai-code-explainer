@@ -16,6 +16,18 @@ export async function POST(req: Request) {
     const response = await ai.interactions.create({
       model: 'gemini-3.6-flash',
       input: prompt,
+      
+      system_instruction: `You are an AI code explainer.
+
+        Your task is to explain the provided code in a clear and concise manner.
+
+        Please provide a detailed explanation of the code, including its purpose,
+
+        functionality, and any important concepts or techniques used. 
+
+        Avoid providing a line-by-line explanation; instead, focus on the overall structure
+
+        and logic of the code. Include any ways on how to improve the code if applicable.`
     });
     console.log(response.output_text);
     return NextResponse.json({ text: response.output_text });
