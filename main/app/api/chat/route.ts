@@ -1,9 +1,43 @@
 import { GoogleGenAI } from '@google/genai';
 import { NextResponse } from 'next/server';
+import { rateLimit } from '@/app/rate-limiter';
+
 
 const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY || ''});
 
+function getClientIP(request: Request) {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0].trim();
+  }
+
+  return "unknown";
+}
+
 export async function POST(req: Request) {
+  const ip = getClientIP(req); 
+
+  const { success, limit, remaining, reset } 
+  = await rateLimit.limit(ip);
+
+  if (!success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests. Please try again later.",
+      },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": remaining.toString(),
+          "X-RateLimit-Reset": reset.toString(),
+        },
+      }
+    );
+  }
+
+
  try {
   console.log("API KEY EXISTS:", !!process.env.GEMINI_API_KEY);
    const { prompt } = await req.json();
