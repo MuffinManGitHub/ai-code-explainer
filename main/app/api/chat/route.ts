@@ -16,6 +16,7 @@ function getClientIP(request: Request) {
 }
 
 export async function POST(req: Request) {
+  // Rate limiting with IP
   const ip = getClientIP(req); 
 
   const { success, limit, remaining, reset } 
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
     );
   }
 
-
+ // Gemini API call
  try {
   console.log("API KEY EXISTS:", !!process.env.GEMINI_API_KEY);
    const { prompt } = await req.json();
@@ -49,8 +50,7 @@ export async function POST(req: Request) {
 
     const response = await ai.interactions.create({
       model: 'gemini-3.6-flash',
-      input: prompt,
-      
+      input: prompt, 
       system_instruction: `You are an AI code explainer.
 
         Your task is to explain the provided code in a clear and concise manner.
@@ -61,7 +61,9 @@ export async function POST(req: Request) {
 
         Avoid providing a line-by-line explanation; instead, focus on the overall structure
 
-        and logic of the code. Include any ways on how to improve the code if applicable.`
+        and logic of the code. Include any ways on how to improve the code if applicable.
+        
+        Answer in under 200 words.`
     });
     console.log(response.output_text);
     return NextResponse.json({ text: response.output_text });
